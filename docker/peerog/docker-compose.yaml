@@ -1,0 +1,8 @@
+peerflix:
+  image: asapach/peerflix-server
+  ports:
+    - "6881:6881"
+    - "6881:6881/udp"
+    - "9001:9000"
+  volumes:
+    - /mnt/downloads/torrent-stream:/tmp/torrent-stream

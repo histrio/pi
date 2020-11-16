@@ -1,0 +1,19 @@
+version: '3'
+services:
+  miniflux:
+    image: miniflux/miniflux:latest
+    container_name: miniflux
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    env_file:
+      - ~/.env
+    networks:
+      - proxynet
+    external_links:
+      - postgres
+
+networks:
+  proxynet:
+    external: 
+        name: postgres_proxynet

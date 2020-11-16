@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: unless-stopped
+    volumes:
+      - gitea-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "8087:3000"
+      - "2222:22"
+    networks:
+      - proxynet
+    external_links:
+      - postgres
+    env_file:
+      - ~/.env
+
+networks:
+  proxynet:
+    external: 
+        name: postgres_proxynet
+
+volumes:
+  gitea-data:

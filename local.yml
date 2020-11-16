@@ -1,0 +1,130 @@
+- hosts: all
+  tasks:
+    - hostname: name=pi.local
+    - apt:
+        name:
+          - git
+          - mosh
+          - tmux
+          - python3-pip
+          - python3-venv
+          - htop
+          - vim
+          - logrotate
+          - nfs-common
+          - glances
+    - pip:
+        name:
+          - virtualenv
+          - pip
+          - pipx
+          - docker-compose
+        state: latest
+    - name: Logrotate config
+      copy:
+        dest: /etc/logrotate.d/ansible-pull
+        content: |
+          /var/log/ansible-pull.log {
+            rotate 7
+            daily
+            compress
+            missingok
+            notifempty
+          }
+    - name: Set authorized keys
+      authorized_key:
+        state: present
+        user: ubuntu
+        key: https://github.com/histrio.keys
+    - timezone: name=Europe/Moscow
+    - systemd:
+        name: systemd-resolved
+        state: stopped
+        enabled: no
+    - copy:
+        dest: /etc/resolv.conf
+        content: |
+            nameserver 127.0.0.1
+            nameserver 1.1.1.1
+    - mount:
+        src: "{{ item.src }}"
+        path: "{{ item.dest }}"
+        fstype: nfs
+        state: mounted
+      with_items:
+          - {src: '192.168.1.122:/data/Documents', dest: '/mnt/documents'}
+          - {src: '192.168.1.122:/media/USB_HDD_2', dest: '/mnt/downloads'}
+
+- hosts: all
+  tasks:
+    - apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+        state: absent
+        purge: true
+    - apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+    - apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - apt_repository:
+        repo: "deb [arch=arm64] https://download.docker.com/linux/ubuntu focal stable"
+        state: present
+    - apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+    - user:
+        name: 'ubuntu'
+        groups: docker
+        append: yes
+    - openssh_keypair:
+        path: /home/ubuntu/.ssh/id_rsa
+        owner: ubuntu
+        group: ubuntu
+
+- hosts: all
+  become: yes
+  become_user: ubuntu
+  tasks:
+    - name: Install oh-my-tmux
+      git:
+        repo: https://github.com/gpakosz/.tmux.git
+        dest: /tmp/tmux/
+        depth: 1
+    - copy:
+        src: /tmp/tmux/{{ item }}
+        dest: ~/{{ item }}
+        force: yes
+      with_items:
+        - .tmux.conf
+        - .tmux.conf.local
+    - git:
+        repo: https://github.com/powerline/fonts.git
+        dest: /tmp/fonts
+        depth: 1
+    - command:
+        cmd: bash /tmp/fonts/install.sh
+        creates: /tmp
+    - name: Install {{ item.name }}
+      command:
+        cmd: /usr/local/bin/pipx install {{ item.name }}
+        creates: ~/.local/bin/{{ item.bin | default(item.name) }}
+      with_items:
+        - {name: awscli, bin: aws}
+        - {name: ansible-base, bin: ansible}
+        - {name: git-review}
+    - copy:
+        src: docker
+        dest: ~/
+        force: yes

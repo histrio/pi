@@ -1,0 +1,42 @@
+version: "3.8"
+services:
+  gitit:
+    build: gitit
+    image: histrio/gitit
+    container_name: gitit
+    ports:
+      - "8089:5001"
+    volumes:
+      - gitit-users:/gitit/gitit-users
+      - gitit-cache:/gitit/cache
+      - git-repo:/gitit/wikidata:z
+    depends_on:
+      - git-sync
+    restart: unless-stopped
+  git-sync:
+    build: git-sync
+    image: histrio/git-sync
+    container_name: git-sync
+    volumes:
+      - ~/.ssh/:/root/.ssh:ro
+      - git-repo:/git:z
+    restart: unless-stopped
+  tdinbox:
+    build: tdinbox
+    image: histrio/tdinbox
+    container_name: tdinbox
+    volumes: 
+      - tdinbox-files:/app/files
+      - tdinbox-data:/app/data
+      - ~/.ssh/:/root/.ssh:ro
+      - git-repo:/git:z
+    env_file:
+      - ~/.env
+    restart: unless-stopped
+
+volumes:
+    gitit-users:
+    gitit-cache:
+    git-repo:
+    tdinbox-files: 
+    tdinbox-data:

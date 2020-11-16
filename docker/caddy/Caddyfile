@@ -1,0 +1,35 @@
+pi.local {
+    reverse_proxy 127.0.0.1:8080
+}
+
+calibre.pi.local {
+    reverse_proxy 127.0.0.1:8083
+}
+
+miniflux.pi.local {
+    reverse_proxy 127.0.0.1:8081
+}
+
+netdata.pi.local {
+    reverse_proxy 127.0.0.1:8082
+}
+
+portainer.pi.local {
+    reverse_proxy 127.0.0.1:8084
+}
+
+sickchill.pi.local {
+    reverse_proxy 127.0.0.1:8085
+}
+
+sync.pi.local {
+    reverse_proxy 127.0.0.1:8086
+}
+
+gitea.pi.local {
+    reverse_proxy 127.0.0.1:8087
+}
+
+wiki.pi.local {
+    reverse_proxy 127.0.0.1:8089
+}

@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+  gather_facts: no
+  become: yes
+  become_user: root
+  tasks:
+    - apt: name=ansible,git
+    - cron: name='ansible-pull' minute="15" job="ansible-pull -U git://github.com/histrio/pi -C main -i 127.0.0.1, >>/var/log/ansible-pull.log 2>&1"
