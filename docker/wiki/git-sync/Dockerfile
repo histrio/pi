@@ -7,5 +7,5 @@ RUN chmod +x /usr/bin/git-sync
 WORKDIR /git
 ENV TERM=xterm
 
-ENTRYPOINT bash -c 'while sleep $(echo 60-`date "+%s"`%60 | bc); do /usr/bin/git-sync; done'
+ENTRYPOINT bash -c 'while sleep $(echo 60-`date "+%s"`%60 | bc); do /usr/bin/git-sync -n; done'
 

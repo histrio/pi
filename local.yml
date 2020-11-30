@@ -12,7 +12,7 @@
           - vim
           - logrotate
           - nfs-common
-          - glances
+          - ncdu
     - pip:
         name:
           - virtualenv
@@ -44,8 +44,8 @@
     - copy:
         dest: /etc/resolv.conf
         content: |
-            nameserver 127.0.0.1
             nameserver 1.1.1.1
+            nameserver 127.0.0.1
     - mount:
         src: "{{ item.src }}"
         path: "{{ item.dest }}"

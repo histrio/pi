@@ -33,3 +33,7 @@ gitea.pi.local {
 wiki.pi.local {
     reverse_proxy 127.0.0.1:8089
 }
+
+glances.pi.local {
+    reverse_proxy 127.0.0.1:8091
+}
