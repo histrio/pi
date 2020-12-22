@@ -2,7 +2,7 @@ FROM centos:8 as lib-builder
 
 RUN dnf group install -y "Development Tools" && \
     yum install -y git clang gcc openssl zlib cmake openssl-devel && \
-    yum install dnf-plugins-core && \
+    yum install -y dnf-plugins-core && \
     yum config-manager --set-enabled PowerTools && \
     yum install -y gperf && \
     git clone https://github.com/tdlib/td.git && \
