@@ -93,9 +93,21 @@ def wrap_authorizationStateWaitTdlibParameters(data):
     }
 
 
+
 def wrap_updateNewMessage(data):
-    if 'message' in data and data['message']['sender_chat_id'] == 0:
-        print("-------------------------", data['message']['content'])
+    if 'message' not in data:
+        return
+    message = data.get('message')
+    if not message:
+        return
+
+    print(message)
+    if message.get('sender',{}).get('user_id') == message.get('chat_id'):
+        rec = message
+        content = message.get('content', {})
+        if content['@type'] == 'messageText':
+            rec = content['text']['text']
+        print(rec)
 
 
 def td_receive(client):
@@ -103,7 +115,6 @@ def td_receive(client):
 
 
 def td_send(command):
-    print(command)
     command and loop.create_task(send(command))
 
 

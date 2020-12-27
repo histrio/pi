@@ -23,9 +23,11 @@ services:
     restart: unless-stopped
   tdinbox:
     build: tdinbox
-    image: histrio/tdinbox
+    image: histrio/tdinbox:latest
     container_name: tdinbox
-    volumes: 
+    tty: true
+    stdin_open: true
+    volumes:
       - tdinbox-files:/app/files
       - tdinbox-data:/app/data
       - ~/.ssh/:/root/.ssh:ro
@@ -38,5 +40,5 @@ volumes:
     gitit-users:
     gitit-cache:
     git-repo:
-    tdinbox-files: 
+    tdinbox-files:
     tdinbox-data:

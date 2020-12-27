@@ -1,0 +1,17 @@
+version: '3'
+services:
+  kodi:
+    image: lsioarmhf/kodi-headless:latest
+    container_name: kodi
+    restart: unless-stopped
+    ports:
+      - "8095:8080"
+      - "8096:9090"
+      - "9777:9777/udp"
+    volumes:
+      - kodi-data:/config/.kodi
+    env_file:
+      - ~/.env
+
+volumes:
+  kodi-data:
