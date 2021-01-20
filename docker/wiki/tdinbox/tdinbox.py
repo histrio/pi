@@ -2,6 +2,7 @@ import os
 import json
 import asyncio
 import ctypes
+import subprocess
 
 TIMEOUT = 2.0
 API_ID = os.environ.get('TDINBOX_API_ID')
@@ -97,7 +98,6 @@ def wrap_updateNewMessage(data):
     message = data.get('message')
     if not message:
         return
-    # print(message)
     sender_id = message.get('sender', {}).get('user_id')
     chat_id = message.get('chat_id')
     if sender_id == chat_id:
@@ -105,15 +105,18 @@ def wrap_updateNewMessage(data):
         content = message.get('content', {})
         if content['@type'] == 'messageText':
             rec = content['text']['text']
-            commit_message(rec)
+            try:
+                commit_message(rec)
+            except Exception as err:
+                print("Error: {}".format(err))
 
 
 def commit_message(msg):
-    import subprocess
-    # print(subprocess.check_call(["ls", "-la", "/git"]))
-    # print(msg)
-    with open('/git/Inbox.md', 'wa') as inbox:
-        inbox.write(msg + '\n')
+    print("New message: {0}".format(msg))
+    with open('/git/Inbox.md', 'a') as inbox:
+        inbox.write(msg + '\n\n')
+    subprocess.check_call(["git", "add", "Inbox.md"], cwd='/git')
+    subprocess.check_call(["git", "commit", "-m", "tdinbox"], cwd='/git')
 
 
 def td_receive(client):

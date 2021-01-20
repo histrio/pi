@@ -13,7 +13,7 @@ RUN cd td/build && cmake --build . --target install
 RUN ls -l td/tdlib
 
 FROM ubuntu:focal
-RUN apt-get update && apt-get install -y openssl python3 libc++-dev && mkdir /app
+RUN apt-get update && apt-get install -y git openssl python3 libc++-dev && mkdir /app
 COPY --from=lib-builder td/build/libtdjson.so* /app/
 COPY tdinbox.py /app
 
