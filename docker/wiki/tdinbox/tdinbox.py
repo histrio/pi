@@ -1,7 +1,6 @@
 import os
 import json
 import asyncio
-import collections
 import ctypes
 
 TIMEOUT = 2.0
@@ -10,6 +9,7 @@ API_HASH = os.environ.get('TDINBOX_API_HASH')
 PHONE_NUMBER = os.environ.get('TDINBOX_PHONE_NUMBER')
 PASSWORD = os.environ.get('TDINBOX_PASSWORD')
 DB_ENCRYPTION_KEY = os.environ.get('TDINBOX_DB_ENCRYPTION_KEY')
+
 
 pwd = os.path.dirname(os.path.realpath(__file__))
 tdlib_path = os.path.join(pwd, 'libtdjson.so')
@@ -93,21 +93,27 @@ def wrap_authorizationStateWaitTdlibParameters(data):
     }
 
 
-
 def wrap_updateNewMessage(data):
-    if 'message' not in data:
-        return
     message = data.get('message')
     if not message:
         return
-
-    print(message)
-    if message.get('sender',{}).get('user_id') == message.get('chat_id'):
+    # print(message)
+    sender_id = message.get('sender', {}).get('user_id')
+    chat_id = message.get('chat_id')
+    if sender_id == chat_id:
         rec = message
         content = message.get('content', {})
         if content['@type'] == 'messageText':
             rec = content['text']['text']
-        print(rec)
+            commit_message(rec)
+
+
+def commit_message(msg):
+    import subprocess
+    # print(subprocess.check_call(["ls", "-la", "/git"]))
+    # print(msg)
+    with open('/git/Inbox.md', 'wa') as inbox:
+        inbox.write(msg + '\n')
 
 
 def td_receive(client):

@@ -1,16 +1,19 @@
-FROM centos:8 as lib-builder
+FROM ubuntu:focal as lib-builder
 
-RUN dnf group install -y "Development Tools" && \
-    yum install -y git clang gcc openssl zlib cmake openssl-devel && \
-    yum install -y dnf-plugins-core && \
-    yum config-manager --set-enabled PowerTools && \
-    yum install -y gperf && \
-    git clone https://github.com/tdlib/td.git && \
-    cd td && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get -y upgrade
+RUN apt-get -y install make git zlib1g-dev libssl-dev gperf php-cli cmake clang-10 libc++-dev libc++abi-dev
+RUN git clone https://github.com/tdlib/td.git
+RUN cd td && git checkout v1.7.0 && \
+    rm -rf build && mkdir build && cd build
+
+RUN cd td/build && CXXFLAGS="-stdlib=libc++" CC=/usr/bin/clang-10 CXX=/usr/bin/clang++-10 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=../tdlib ..
+RUN cd td/build && cmake --build . --target install
+RUN ls -l td/tdlib
 
 FROM ubuntu:focal
-RUN apt-get update && apt-get install -y openssl python3 && mkdir /app
+RUN apt-get update && apt-get install -y openssl python3 libc++-dev && mkdir /app
 COPY --from=lib-builder td/build/libtdjson.so* /app/
 COPY tdinbox.py /app
 
