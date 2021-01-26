@@ -2,7 +2,7 @@ version: "3.8"
 services:
   gitit:
     build: gitit
-    image: histrio/gitit
+    image: histrio/gitit:latest
     container_name: gitit
     ports:
       - "8089:5001"
@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
   git-sync:
     build: git-sync
-    image: histrio/git-sync
+    image: histrio/git-sync:latest
     container_name: git-sync
     volumes:
       - ~/.ssh/:/root/.ssh:ro
