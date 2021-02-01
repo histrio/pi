@@ -1,0 +1,14 @@
+version: '3'
+services:
+  couchdb:
+      image: histrio/mytinytodo:latest
+      container_name: todo
+      ports:
+        - "8096:80"
+      volumes:
+        - todo-data:/var/www/html/db
+      env_file:
+        - ~/.env
+      restart: unless-stopped
+volumes:
+  todo-data:
