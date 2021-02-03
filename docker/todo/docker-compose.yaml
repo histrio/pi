@@ -1,6 +1,6 @@
 version: '3'
 services:
-  couchdb:
+  todo:
       image: histrio/mytinytodo:latest
       container_name: todo
       ports:
