@@ -10,6 +10,10 @@ miniflux.pi.local {
     reverse_proxy 127.0.0.1:8081
 }
 
+rss.pi.local {
+    reverse_proxy 127.0.0.1:8081
+}
+
 netdata.pi.local {
     reverse_proxy 127.0.0.1:8082
 }
