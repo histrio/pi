@@ -45,3 +45,7 @@ glances.pi.local {
 todo.pi.local {
     reverse_proxy 127.0.0.1:8096
 }
+
+home.pi.local {
+    reverse_proxy 127.0.0.1:8123
+}
