@@ -1,6 +1,8 @@
 - hosts: all
+  become: yes
+  become_user: root
   tasks:
-    - hostname: name=pi.local
+    - hostname: name=enceladus
     - apt:
         name:
           - git
@@ -13,12 +15,18 @@
           - logrotate
           - nfs-common
           - ncdu
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+          - libssl-dev
+          - zsh
     - pip:
         name:
           - virtualenv
           - pip
           - pipx
-          - docker-compose
         state: latest
     - name: Logrotate config
       copy:
@@ -34,89 +42,41 @@
     - name: Set authorized keys
       authorized_key:
         state: present
-        user: ubuntu
+        user: pi
         key: https://github.com/histrio.keys
-    - timezone: name=Europe/Moscow
+    - timezone: name=Europe/Podgorica
     - systemd:
         name: systemd-resolved
         state: stopped
         enabled: no
-    - copy:
-        dest: /etc/resolv.conf
-        content: |
-            nameserver 1.1.1.1
-            nameserver 127.0.0.1
-    - mount:
-        src: "{{ item.src }}"
-        path: "{{ item.dest }}"
-        fstype: nfs
-        state: mounted
-      with_items:
-          - {src: '192.168.1.122:/data/Documents', dest: '/mnt/documents'}
-          - {src: '192.168.1.122:/media/USB_HDD_2', dest: '/mnt/downloads'}
-
-- hosts: all
-  tasks:
-    - apt:
-        name:
-          - docker
-          - docker-engine
-          - docker.io
-          - containerd
-          - runc
-        state: absent
-        purge: true
-    - apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg-agent
-          - software-properties-common
-    - apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-    - apt_repository:
-        repo: "deb [arch=arm64] https://download.docker.com/linux/ubuntu focal stable"
-        state: present
-    - apt:
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
     - user:
-        name: 'ubuntu'
-        groups: docker
-        append: yes
-    - openssh_keypair:
-        path: /home/ubuntu/.ssh/id_rsa
-        owner: ubuntu
-        group: ubuntu
+        name: "pi"
+        shell: /bin/bash
 
 - hosts: all
   become: yes
-  become_user: ubuntu
+  become_user: pi
   tasks:
     - name: Install oh-my-tmux
       git:
         repo: https://github.com/gpakosz/.tmux.git
-        dest: /tmp/tmux/
+        dest: ~/.tmux/
         depth: 1
-    - copy:
-        src: /tmp/tmux/{{ item }}
+    - file:
+        src: ~/.tmux/{{ item }}
         dest: ~/{{ item }}
-        force: yes
+        state: link
       with_items:
         - .tmux.conf
         - .tmux.conf.local
-    - git:
+    - name: Install powerline fonts
+      git:
         repo: https://github.com/powerline/fonts.git
         dest: /tmp/fonts
         depth: 1
     - command:
         cmd: bash /tmp/fonts/install.sh
-        creates: /tmp
-    - name: Install {{ item.name }}
+    - name: Install python binaries
       command:
         cmd: /usr/local/bin/pipx install {{ item.name }}
         creates: ~/.local/bin/{{ item.bin | default(item.name) }}
@@ -124,7 +84,6 @@
         - {name: awscli, bin: aws}
         - {name: ansible-base, bin: ansible}
         - {name: git-review}
-    - copy:
-        src: docker
-        dest: ~/
-        force: yes
+    - name: Install Rust
+      shell: "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+
